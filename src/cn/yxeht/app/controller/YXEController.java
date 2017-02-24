@@ -426,20 +426,6 @@ public class YXEController extends Controller {
 
 		render("/hello.jsp");
 
-		// List<SpliderInfo> sinfos = SpliderInfo.me.find("select * from
-		// h_splider_info where h_catch_state=? order by id desc",
-		// SpliderInfo.UN_FETCH);
-		//
-		// setAttr("splider_infos", sinfos);
-		//
-		// for(int i = 0; i < sinfos.size(); i++){
-		// int flag = SpliderService.fetchGoodOnLink(sinfos.get(i));
-		// System.out.println("==========>sinfos["+i+"] fetch
-		// failed,["+sinfos+"]");
-		// log.info(AppConfig.formatLog("startFetchV2#fetch status(0
-		// success):"+flag+":fetch Good ["+sinfos+"]"));
-		// }
-
 	}
 
 	static long oneSecond = 1000;
