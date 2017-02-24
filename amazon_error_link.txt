@@ -1,0 +1,43 @@
+问题链接:
+商品详情链接:http://guangdiu.com/detail.php?id=3583298
+fetchGoodDetail#filePath:http://guangdiu.com/detail.php?id=3583298#zdirect
+JsoupUtil#createJsoupDocument#url:http://guangdiu.com/detail.php?id=3583298
+convert_src_link:https://www.amazon.com/b?node=15195357011&tag=gdiu-20
+是否直邮:0 
+商品标题:美国亚马逊亚马逊直邮中国银联优惠 满5减5美元/满100减15美元 满5减5美元/满100减15美元 
+商品描述信息:感谢买手爆料，5美元不是小数目啊，差不多价值35元啊。本活动时间从北京时间2016年12月15日至2017年1月26日截止。&nbsp;<br>，购满$5立减$5，购满$100立减$15。需使用银联信用卡（卡号以62开头）。<br> 
+源地址:https://www.amazon.com/b?node=15195357011&tag=gdiu-20 
+洋小二:https://www.amazon.com/b?tag=yxe_tag
+共[1]张图片
+图片地址:[http://imgcdn.guangdiu.com/4cb92a457a2e383b907f181e3499cab2.jpg]
+类型:395 
+
+
+fetchGoodDetail#filePath:http://guangdiu.com/detail.php?id=3584183#zdirect
+JsoupUtil#createJsoupDocument#url:http://guangdiu.com/detail.php?id=3584183
+convert_src_link:https://www.amazon.com/b?node=15195357011&tag=gdiu-20
+是否直邮:0 
+商品标题:美国亚马逊亚马逊直邮中国银联优惠 满100减15美元 附直邮推荐！ 
+商品描述信息:AmazonGlobal（直邮）百万商品，购满$100立减$15。需使用银联信用卡（卡号以62开头），本活动时间从北京时间2016年12月15日至2017年1月26日截止。 银联信用卡直邮满100美元&nbsp;立减15美元的优惠&nbsp;，需使用优惠码 ”UNIONPAY15” 。每个帐户可以享受多次优惠。<br /><br>优惠仅适用于亚马逊网站销售和直运的全球购产品（AmazonGlobal）。<br> 
+源地址:https://www.amazon.com/b?node=15195357011&tag=gdiu-20 
+洋小二:https://www.amazon.com/b?tag=yxe_tag
+共[5]张图片
+图片地址:[http://imgcdn.guangdiu.com/49f2589c674faa47d2fd3d6eb32784f6.jpg, http://imgcdn.guangdiu.com/b9317782f2f821782fd19aa96c8b4819.jpg, http://imgcdn.guangdiu.com/2a39ef17881cdcbf2ec9b399cd976a29.jpg, http://imgcdn.guangdiu.com/36880661dbcd59dea37b05711b3b454f.jpg, http://imgcdn.guangdiu.com/a4b5580058112e3e59423ac86127f5be.jpg]
+类型:395 
+
+//根据目标网站获取目标网站的具体信息
+	function startFetch(mer_type, mer_host){
+		$.ajax({
+	        url: "startFetch",
+	        type: "GET",
+	        data:"mer_type="+mer_type+",mer_host="+mer_host,
+	        success: function (data) {
+	        	alert(data);
+	        },
+	        error: function (XMLHttpRequest, textStatus, errorThrown) {   
+	        	alert(textStatus);   
+	        },
+	        complete: function(result){
+	        	//do nothing...
+	        }
+	    });

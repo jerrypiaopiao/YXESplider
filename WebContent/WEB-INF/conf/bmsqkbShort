@@ -1,0 +1,16 @@
+[
+  {
+    "merName": "bmsqkb_p1",
+    "merHost": "bmsqkb_p1",
+    "srcHost": "http://cn.dealmoon.com/",
+    "srcLink": "http://cn.dealmoon.com/?v=list&sort=time&p=1",
+    "merType": 6
+  },
+  {
+    "merName": "bmsqkb_p2",
+    "merHost": "bmsqkb_p2",
+    "srcHost": "http://cn.dealmoon.com/",
+    "srcLink": "http://cn.dealmoon.com/?v=list&sort=time&p=2",
+    "merType": 6
+  }
+]

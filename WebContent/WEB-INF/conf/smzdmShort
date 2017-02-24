@@ -1,0 +1,16 @@
+[
+  {
+    "merName": "smzdm_p1",
+    "merHost": "smzdm_p1",
+    "srcHost": "http://www.smzdm.com/",
+    "srcLink": "http://haitao.smzdm.com/p1/",
+    "merType": 3
+  },
+  {
+    "merName": "smzdm_p2",
+    "merHost": "smzdm_p2",
+    "srcHost": "http://www.smzdm.com/",
+    "srcLink": "http://haitao.smzdm.com/p2/",
+    "merType": 3
+  }
+]

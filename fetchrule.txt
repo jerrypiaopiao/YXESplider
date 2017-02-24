@@ -1,0 +1,30 @@
+case Constants.WUWU_HAITAO:
+			/*
+			 * 数据抓取已完成，正在第一次全程跑
+			 */
+			targetName = "55海淘";
+			merBaseInfoPath = "/D/workspace/YXESplider/55haitao";
+			dfr.setTitleCssStyle("div[class=ht-deal-detail-title clearfix]#h1,h2");//里的h1标签#h1
+			dfr.setDescCssStyle("div[class=ht-deal-detail-buy]");//p标签的深度控制,外层class=ht-deal-detail-des-box
+			dfr.setTrueLinkCssStyle("a[class=ht-deal-detail-buy-btn]");//外层class=ht-deal-detail-buy
+			dfr.setImgCssStyle("div[class=ht-deal-detail-buy]");
+			dfr.setTypeCssStyle("p[class=ht-deal-detail-info-tag]");
+			break;
+		case Constants.MEI_DE_BI:
+			targetName = "没得比";
+			merBaseInfoPath = "/D/workspace/YXESplider/meidebi";
+			dfr.setTitleCssStyle("h2[class=d-title]");
+			dfr.setDescCssStyle("div[id=infoDesc]");//p标签的深度控制
+			dfr.setTrueLinkCssStyle("a[class=mdb-button mdb-button-orange mdb-button-large out-link]");
+			dfr.setImgCssStyle("div[class=d-output fr]");
+			dfr.setTypeCssStyle("div[class=top-info clearfix gray9]");
+			break;
+		case Constants.BEI_MEI_SHENG_QIAN_KUAI_BAO:
+			targetName = "北美省钱快报";
+			merBaseInfoPath = "/D/workspace/YXESplider/bmsqkb";
+			dfr.setTitleCssStyle("div[class=article_title]");
+			dfr.setDescCssStyle("div[class=minfor  event_statistics]");//li标签的深度控制
+			dfr.setTrueLinkCssStyle("div[class=buy]");
+			dfr.setImgCssStyle("div[class=img_wrap]");
+			dfr.setTypeCssStyle("div[class=mbx]");
+			break;

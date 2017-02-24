@@ -1,0 +1,16 @@
+[
+  {
+    "merName": "55haitao_p1",
+    "merHost": "55haitao_p1",
+    "srcHost": "http://www.55haitao.com/",
+    "srcLink": "http://www.55haitao.com/deals?acm=2.1.4.0&p=1&acm=2.4.21.0",
+    "merType": 4
+  },
+  {
+    "merName": "55haitao_p2",
+    "merHost": "55haitao_p2",
+    "srcHost": "http://www.55haitao.com/",
+    "srcLink": "http://www.55haitao.com/deals?acm=2.1.4.0&p=2&acm=2.4.21.0",
+    "merType": 4
+  }
+]
