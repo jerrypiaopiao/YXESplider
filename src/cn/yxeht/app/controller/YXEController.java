@@ -83,9 +83,17 @@ public class YXEController extends Controller {
 		int yxe_t = getParaToInt("yxe_t");
 		int target_web_id = getParaToInt("target_web_id");
 
+		List<Goodstype> goodsTypes = Goodstype.me.find("select * from h_goodstype where father=?", 0);
+		
 		SpliderGoodType sgt = null;
+		
+		Constants.TARGET_WEBSITE_LIST.clear();
+		YXEConfLoad.loadSpliderTargetInfo();
+		setAttr("target_infos", Constants.TARGET_WEBSITE_LIST);
+		
 		switch (opt) {
 		case SpliderGoodType.MODIFY:
+			setAttr("goods_types", goodsTypes);
 			setAttr("change_type", SpliderGoodType.MODIFY);
 			if (yxe_t > -1) {
 				sgt = SpliderGoodType.me.findFirst("select * from h_splider_type where h_yxe_type_id=? and h_src_id=?", yxe_t, target_web_id);
@@ -94,11 +102,7 @@ public class YXEController extends Controller {
 			break;
 		case SpliderGoodType.ADD:
 		default:
-			Constants.TARGET_WEBSITE_LIST.clear();
-			YXEConfLoad.loadSpliderTargetInfo();
-			setAttr("target_infos", Constants.TARGET_WEBSITE_LIST);
 			setAttr("change_type", SpliderGoodType.ADD);
-			List<Goodstype> goodsTypes = Goodstype.me.find("select * from h_goodstype where father=?", 0);
 			setAttr("goods_types", goodsTypes);
 			break;
 		}
@@ -110,23 +114,39 @@ public class YXEController extends Controller {
 	public void changeTypeMatch() {
 		int opt = getParaToInt("change_type");
 		int yxe_type_id = getParaToInt("yxe_type_id");
+		String yxe_type_name = getPara("good_type_name");
 		int target_web_id = getParaToInt("target_web_id");
+		String target_web_name = getPara("target_web_name");
 		String src_type_str = getPara("src_type_str");
 		SpliderGoodType sgt = null;
 		switch (opt) {
 		case SpliderGoodType.MODIFY:
 			if (!TextUtil.isEmpty(src_type_str)) {
 				sgt = SpliderGoodType.me.findFirst("select * from h_splider_type where h_yxe_type_id=? and h_src_id=?", yxe_type_id, target_web_id);
+				boolean isNull = sgt == null;
+				if(isNull){
+					sgt = new SpliderGoodType();
+				}
+				sgt.set("h_yxe_type_id", yxe_type_id);
+				sgt.set("h_yxe_type_name", yxe_type_name);
 				sgt.set("h_src_type_str", src_type_str);
-				sgt.update();
+				sgt.set("h_src_id", target_web_id);
+				sgt.set("h_src_name", target_web_name);
+				if(isNull){
+					sgt.save();
+				}else{
+					sgt.update();
+				}
 			}
 			break;
 		case SpliderGoodType.ADD:
 		default:
 			sgt = new SpliderGoodType();
 			sgt.set("h_yxe_type_id", yxe_type_id);
+			sgt.set("h_yxe_type_name", yxe_type_name);
 			sgt.set("h_src_type_str", src_type_str);
 			sgt.set("h_src_id", target_web_id);
+			sgt.set("h_src_name", target_web_name);
 			sgt.save();
 			break;
 		}

@@ -13,14 +13,16 @@ function getTypeMatchRule(){
                 		if(innerHtml){
                 			innerHtml = innerHtml + '<p>洋小二分类id:'+item.h_yxe_type_id+'&nbsp;&nbsp;&nbsp;&nbsp;分类信息:'+item.h_src_type_str+'&nbsp;&nbsp;&nbsp;&nbsp;<a href="gotoAddTypeMatch?opt=2&yxe_t='+item.h_yxe_type_id+'&target_web_id='+item.h_src_id+'">修改</a></p>';
                 			innerHtmlnew = innerHtmlnew + '<tr><td>'+item.h_yxe_type_id+'</td>'
-                											+'<td border="1" >--</td>'
+                											+'<td border="1" >'+item.h_yxe_type_name+'</td>'
+                											+'<td border="1" >'+item.h_src_name+'</td>'
                 											+'<td style="width: 120px">'+item.h_src_type_str+'</td>'
                 											+'<td><a href="gotoAddTypeMatch?opt=2&yxe_t='+item.h_yxe_type_id+'&target_web_id='+item.h_src_id+'">修改</a></td>'
                 											+'</tr>';
                 		}else{
                 			innerHtml =  '<p>洋小二分类id:'+item.h_yxe_type_id+'&nbsp;&nbsp;&nbsp;&nbsp;分类信息:'+item.h_src_type_str+'&nbsp;&nbsp;&nbsp;&nbsp;<a href="gotoAddTypeMatch?opt=2&yxe_t='+item.h_yxe_type_id+'&target_web_id='+item.h_src_id+'">修改</a></p>';
                 			innerHtmlnew = '<tr><td>'+item.h_yxe_type_id+'</td>'
-                			                                +'<td>--</td>'
+                											+'<td border="1" >'+item.h_yxe_type_name+'</td>'
+                											+'<td border="1" >'+item.h_src_name+'</td>'
                 			                                +'<td style="width: 120px">'+item.h_src_type_str+'</td>'
                 			                                +'<td><a href="gotoAddTypeMatch?opt=2&yxe_t='+item.h_yxe_type_id+'&target_web_id='+item.h_src_id+'">修改</a></td>'
                 			                                +'</tr>';
@@ -34,7 +36,7 @@ function getTypeMatchRule(){
             	var oldHtml = $("#type_match_rule_show_table").html(); 
             	var addLink = '<tr><td colspan="4"><a href="gotoAddTypeMatch?opt=1&yxe_t=-1&target_web_id=-1">添加类型匹配规则</a></td></tr>';
             	var addFilterLink = '<tr><td colspan="4"><a href="loadFilterWord">关键词过滤规则管理</a></td></tr>';
-            	$("#type_match_rule_show_table").html(oldHtml + innerHtmlnew + addLink + addFilterLink);
+            	$("#type_match_rule_show_table").html(oldHtml + innerHtmlnew + addLink);
             	
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {   

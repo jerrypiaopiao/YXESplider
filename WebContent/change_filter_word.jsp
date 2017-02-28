@@ -32,16 +32,18 @@
 						<option value="${tmp_target_id}">${target_info}</option>
 					</c:forEach>
 					</select>
+					</p>
 					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					过滤词:<input type="text" name="h_filter_words" value="" /><span>多个词组以","逗号隔开</span>					
-				</p>
+					<p>
+					过滤词:</p><p><textarea rows="15" cols="45" name="h_filter_words"></textarea><span>多个词组以","逗号隔开</span>					
+					</p>
 				<input type="submit" value="添加" />
 			</c:when>
 			<c:when test="${change_type== 2}">
 				<p>过滤词组id:<input type="text" name="id" value="${filter_word.id}"></p>
 				<p>目标网站id:<input type="text" name="h_src_id" value="${filter_word.h_src_id}"><span>多个词组以","逗号隔开</span></p>
-				<p>商家对应:<input type="text" name="h_filter_words" value="${filter_word.h_filter_words}"></p>
+				<p>过滤词组:</p><p><textarea rows="15" cols="45" name="h_filter_words">${filter_word.h_filter_words}</textarea></p>
 				<input type="submit" value="修改" />
 			</c:when>
 			<c:otherwise>
