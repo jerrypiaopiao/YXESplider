@@ -447,6 +447,27 @@ public class YXEController extends Controller {
 		render("/hello.jsp");
 
 	}
+	
+	/**
+	 * 单条商品抓取测试
+	 */
+	public void singleFetch(){
+		
+		YXEConfLoad.loadFetchGoodListRule(true, getRequest().getSession().getServletContext().getRealPath("/"));
+		
+		String fetchUrl = getPara("fetch_url");
+		
+		SpliderInfo sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_good_link=?", fetchUrl);
+		
+		 int flag = SpliderService.fetchGoodOnLink(sinfo);
+		 
+		 String message = flag == 0 ? "["+fetchUrl+"] fetch success, flag is ["+flag+"]" : "["+fetchUrl+"] fetch failed, flag is ["+flag+"]";
+		
+		 setAttr("fetch_message", message);
+		 
+		 render("/single_fetch.jsp");
+		 
+	}
 
 	static long oneSecond = 1000;
 	static long oneMunite = 60 * oneSecond;

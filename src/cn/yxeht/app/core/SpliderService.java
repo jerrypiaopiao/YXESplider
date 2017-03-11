@@ -50,6 +50,16 @@ public class SpliderService {
 
 	public static List<YXETypeMatch> YXE_TYPE_MATCHES = null;
 
+	/**
+	 * @deprecated
+	 * @param fullMerType
+	 * @param merType
+	 * @param fetchStyle
+	 * @param merHost
+	 * @param targetWebName
+	 * @param merInfos
+	 * @param dfr
+	 */
 	public synchronized static void fetchGoodByRule(String fullMerType, int merType, String fetchStyle, String merHost, String targetWebName, List<MerInfoBean> merInfos, DetailFetchRule dfr) {
 
 		if (YXE_TYPE_MATCHES == null) {
@@ -75,7 +85,7 @@ public class SpliderService {
 
 	/**
 	 * 自动抓取
-	 * 
+	 * @deprecated
 	 * @param ruleList
 	 * @param dfr
 	 */
@@ -95,7 +105,7 @@ public class SpliderService {
 	}
 
 	/**
-	 * 抓取商品列表(规则自动生成)
+	 * 抓取商品列表,将商品详情链接信息存入h_splider_info表中(规则自动生成)
 	 * 
 	 * @param refresh
 	 *            是否需要更新目标网站信息
@@ -111,7 +121,7 @@ public class SpliderService {
 	}
 
 	/**
-	 * 抓取商品列表
+	 * 抓取商品列表,将商品详情链接信息存入h_splider_info表中(指定规则)
 	 * 
 	 * @param ruleList
 	 */
@@ -147,7 +157,7 @@ public class SpliderService {
 	}
 
 	/**
-	 * 根据商品详情链接抓取商品信息
+	 * 根据商品详情链接抓取商品信息,依据h_splider_*表中存储的信息进行商品详情信息抓取,并保存至数据库
 	 * @param sinfo
 	 * 						商品详情页对象
 	 * @return
@@ -367,6 +377,12 @@ public class SpliderService {
 		
 	}
 
+	/**
+	 * @deprecated
+	 * @param ruleList
+	 * @param dfr
+	 * @param merHost
+	 */
 	private synchronized static void fetchGoodByRules(List<GoodListRule> ruleList, DetailFetchRule dfr, String merHost) {
 
 		boolean isTestFun = false;// 是否仅用于测试
@@ -585,7 +601,7 @@ public class SpliderService {
 
 	/**
 	 * 创建商品列表抓取规则
-	 * 
+	 * @deprecated
 	 * @param ruleName
 	 *            规则名称
 	 * @param merHost
@@ -603,6 +619,7 @@ public class SpliderService {
 	 * @param goodTypeCode
 	 *            商品类型,比如日用的id为6
 	 * @return
+	 * 
 	 */
 	public synchronized static GoodListRule createFetchRules(String ruleName, String merHost, int merIndex, int requestType, String sourceWebHost, String goodListUrl, String fetchStyle, String goodTypeCode) {
 		String goodHost = merHost;
@@ -1138,6 +1155,14 @@ public class SpliderService {
 					}
 				}
 			}
+			
+			/*
+			 * 这里处理了目标网站商品详情页面返回最终地址的情况,
+			 * 比如通过jsoup访问https://www.55haitao.com/g/1696-d-302780?acm=2.5.24.0后直接进入了商品原始链接https://www.amazon.com/dp/B01GTKKYZ0?tag=55haitao-20
+			 */
+			if(TextUtil.isEmpty(goodSrcLink)){
+				goodSrcLink = doc.baseUri();
+			}			
 
 		} catch (HttpStatusException e) {
 			System.out.println("-------->HttpStatusException:" + e.getLocalizedMessage());

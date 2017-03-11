@@ -33,20 +33,26 @@ public class LinkConvertor {
 			return linkArr;
 		}
 		
+		// 去掉链接开头的http://或https://
+		// 参考原始链接:http://www.amazon.com/gp/product/B008UPSGPS/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1&tag=gdiu-20
+		String[] srcLinkArr = TextUtil.replaceFirstHttpInUrl(srcLink);
+		String http = srcLinkArr[0];// 替换掉的字符串,比如是http://或https://
+		srcLink = srcLinkArr[1];// 比如:www.amazon.com/gp/product/B008UPSGPS/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1&tag=gdiu-20
+		
 		try {
 			srcLink = URLDecoder.decode(srcLink, "utf-8");
+			if(srcLink.contains("http://")){
+				srcLink = srcLink.substring(srcLink.lastIndexOf("http://"));
+			}else if(srcLink.contains("https://")){
+				srcLink = srcLink.substring(srcLink.lastIndexOf("https://"));
+			}
 			if(srcLink.contains("&")){
 				srcLink = srcLink.substring(0, srcLink.lastIndexOf("&"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// 去掉链接开头的http://或https://
-		// 参考原始链接:http://www.amazon.com/gp/product/B008UPSGPS/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1&tag=gdiu-20
-		String[] srcLinkArr = TextUtil.replaceFirstHttpInUrl(srcLink);
-		String http = srcLinkArr[0];// 替换掉的字符串,比如是http://或https://
-		srcLink = srcLinkArr[1];// 比如:www.amazon.com/gp/product/B008UPSGPS/ref=oh_aui_detailpage_o00_s00?ie=UTF8&psc=1&tag=gdiu-20
+		
 		log.info(AppConfig.formatLog("convertToYxeLink#replace http head#http:"+http+", srcLink:"+srcLink));
 		
 		if (srcLink.contains("http://")) {
