@@ -1,4 +1,7 @@
-﻿最新更新:
+﻿http://redirect.viglink.com?key=7b2d14e2afe3c3bdb83c57bcbd485b1f&u=http://www.6pm.com/p/keds-champion-wool-forest-green/product/8732018/color/955
+
+
+最新更新:
 商品列表抓取思路：
 1、以商家进行分类，比如美亚、德亚、6pm
 2、每个商家的商品有商品分类，比如服装箱包、电子产品等

@@ -145,6 +145,7 @@ public class IndexController extends Controller {
 		render("/index.jsp");
 	}
 
+	@Deprecated
 	public void sayHello() {
 
 		String merchants = getPara("merchant_name");
@@ -203,7 +204,7 @@ public class IndexController extends Controller {
 									String.valueOf(AppConfig.bizManId),
 									goods_type, type.getStr("name"),
 									String.valueOf(mer.getInt("id")),
-									mer.getStr("name"));
+									mer.getStr("name"), "");
 							goods.save();
 							if (goodDetail.getmImgLinks() != null
 									&& goodDetail.getmImgLinks().size() > 0) {

@@ -65,6 +65,9 @@
 	<tr>
 		<td colspan="3"><button id="type_match_rule">加载分类列表信息</button></td>
 	</tr>
+	<tr>
+		<td colspan="3"><a href="getAllSpliderInfo">查看已获取的商品列表信息</a></td>
+	</tr>
 </table>
 	
 	

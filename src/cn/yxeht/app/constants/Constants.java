@@ -69,6 +69,9 @@ public class Constants {
 	
 	/**
 	 * 目标网站配置信息,恒定变量,在{@link YXEController#startFetchOnQuartz()}中实现了初始填充
+	 * <br/>
+	 * 已无用
+	 * @deprecated
 	 */
 	public static final Map<String, List<MerInfoBean>> ALL_TARGET_FETCH_RULE = new HashMap<String, List<MerInfoBean>>();
 	
@@ -84,7 +87,7 @@ public class Constants {
 	public static final Map<String, List<MerInfoBean>> USED_TARGET_FETCH_RULE = new HashMap<String, List<MerInfoBean>>();
 	
 	/**
-	 * 当前正在执行的抓取规则,在{@link YXEConfLoad#autoFetch(String)}中进行填充以及使用操作
+	 * 当前正在执行的抓取规则,即在抓取队列中的抓取目标网站信息,在{@link YXEConfLoad#autoFetch(String)}中进行填充以及使用操作
 	 */
 	public static final List<GoodListRule> ON_FETCHING_RULE = new ArrayList<GoodListRule>();
 	

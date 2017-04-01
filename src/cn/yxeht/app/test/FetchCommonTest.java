@@ -140,11 +140,11 @@ public class FetchCommonTest {
 					log.info("分类信息:" + type);
 					log.info("商户信息:" + mer);
 					Goods goods1 = Goods.me.convert(goodDetail, bizUserTags != null ? bizUserTags.getBizManName() : AppConfig.bizManName, bizUserTags != null ? bizUserTags.getBizManId() : String.valueOf(AppConfig.bizManId), goodTypeId,
-							type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"));
+							type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"), "");
 					log.info(AppConfig.formatLog("goodInfo:"+goods1.toJson()));
 					if (tmp == null) {
 						Goods goods = Goods.me.convert(goodDetail, bizUserTags != null ? bizUserTags.getBizManName() : AppConfig.bizManName, bizUserTags != null ? bizUserTags.getBizManId() : String.valueOf(AppConfig.bizManId), goodTypeId,
-								type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"));
+								type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"), "");
 //						log.info(AppConfig.formatLog("goodInfo:"+goods.toJson()));
 						// TODO 商品信息保存
 						if (!AppConfig.IS_DEV) {

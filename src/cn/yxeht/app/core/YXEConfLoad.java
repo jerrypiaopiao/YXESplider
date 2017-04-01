@@ -27,7 +27,11 @@ public class YXEConfLoad {
 	private static final Logger log = Logger.getLogger(YXEConfLoad.class);
 
 	/**
-	 * 加载目标网站配置信息,对应目标list为{@link Constants#TARGET_WEBSITE_LIST},List"String"
+	 * 加载目标网站配置信息,对应目标list为{@link Constants#TARGET_WEBSITE_LIST},List"String".
+	 * <br/>
+	 * 比如对应classpath下的system_config_info.properties文件中的如下内容:
+	 * <br/>
+	 * splider_file_conf_target_website=55haitaoShort_4,bmsqkbShort_6,meidebiShort_5,smzdmShort_3
 	 */
 	public static void loadSpliderTargetInfo() {
 		log.info(AppConfig.formatLog("load splider target info, like '55haitaoSort'"));
@@ -49,10 +53,11 @@ public class YXEConfLoad {
 	 * @param path
 	 * 						项目路径,对应 getRequest().getSession().getServletContext().getRealPath("/"),
 	 * @param targetWebs
-	 * 						是否抓取指定网站,比如有参数[55haitaoShort_4]
+	 * 						是否抓取指定网站,如果不传入此参数则默认抓取所有目标网站的列表信息,目前此参数只支持一个目标网站,比如有参数[55haitaoShort_4]
 	 */
 	public static void loadFetchGoodListRule(boolean refresh,String path, String... targetWebs){
 		log.info(AppConfig.formatLog("load splider good list fetch rule, like good list on 55haitao"));
+		//获取对应的目标网站信息
 		if(Constants.TARGET_WEBSITE_LIST == null || Constants.TARGET_WEBSITE_LIST.size() == 0){
 			loadSpliderTargetInfo();
 		}else if(refresh){
@@ -65,53 +70,72 @@ public class YXEConfLoad {
 //			Constants.TMP_TARGET_FETCH_RULE.clear();
 		}
 		
+		//是否有指定的目标网站
 		String targetWeb = null;
 		if(targetWebs != null && targetWebs.length > 0){
 			targetWeb = targetWebs[0];
 		}
-		
+		//清空正在抓取队列中的商品列表抓取信息
 		Constants.ON_FETCHING_RULE.clear();
+		/*
+		 * 遍历目标网站信息,如下:<br/>
+		 * {55haitaoShort_4,bmsqkbShort_6,meidebiShort_5,smzdmShort_3}
+		 * <br/>
+		 * 下划线后的数字代表目标网站的索引值
+		 */
 		for(String target : Constants.TARGET_WEBSITE_LIST){
 			String[] merHostArr = null;
-			String typeStr = null;
-			String tpyeInt = null;
+			String typeStr = null;//目标网站对应的配置文件名
+			String tpyeInt = null;//目标网站对应的索引值
 			
 			if(!TextUtil.isEmpty(target) && target.contains("_")){
 				merHostArr = target.split("_");
 				typeStr = merHostArr[0];
 				tpyeInt = merHostArr[1];
 			}
-			
+			//如果指定了要抓取的目标网站
 			if(!TextUtil.isEmpty(targetWeb)){
 				if(!targetWeb.equals(target) && !"--".equals(targetWeb)){
 					continue;
 				}
 			}
-			
+			//根据目标网站对应的配置文件名获取目标网站的抓取地址
 			List<MerInfoBean> goodRules = YXEConfLoad.loadMerInfoByKey(path, typeStr);
 			Constants.ALL_TARGET_FETCH_RULE.put(target, goodRules);
 		}
 		
+		/*
+		 * 遍历目前已加载的目标网站配置信息,并创建商品列表抓取规则(GoodListRule)
+		 */
 		Iterator<String> keySets = Constants.ALL_TARGET_FETCH_RULE.keySet().iterator();
 		int i = 0;
 		while (keySets.hasNext()) {
+			/*
+			 * 这里的key对应的是如下内容:
+			 * splider_file_conf_target_website=55haitaoShort_4,bmsqkbShort_6,meidebiShort_5,smzdmShort_3
+			 * 比如55haitaoShort_4
+			 */
 			String key = keySets.next();
-			String[] merTypeArr = null;
-			String type = null;
-			String tpyeInt = null;
-			String fetchStyle = null;
+			String[] merTypeArr = null;//目标网站信息数组,比如55haitaoShort_4对应["55haitaoShort","4"]
+			String type = null;//目标网站名称描述,比如55haitaoShort
+			String tpyeInt = null;//目标网站索引值,比如55haitaoShort_4对应4
+			String fetchStyle = null;//目标网站商品列表对应的抓取标签以及css样式,比如55haitaoShort_4对应“2,ul[id=deal_list]#0,[class=index-deal-title]”
 			if (!TextUtil.isEmpty(key) && key.contains("_")) {
 				merTypeArr = key.split("_");
 				type = merTypeArr[0];
 				tpyeInt = merTypeArr[1];
 				fetchStyle = YXEConfLoad.getStyleByTargetWeb(Integer.valueOf(tpyeInt));
 			}
+			//获取当前key对应的目标网站配置信息
 			List<MerInfoBean> merInfos = Constants.ALL_TARGET_FETCH_RULE.get(key);
+			//cc这个变量只是方便在日志中查看当前key对应的目标网站是否有抓取链接
 			String cc = merInfos == null ? "null" : String.valueOf(merInfos.size());
 			log.info(AppConfig.formatLog("------------------->load splider good list fetch rule#merInfos[" + key + "]:" + cc + "<-------------------"));
 			if (merInfos != null && merInfos.size() == 0) {
-				// 这里复位key位置上的List<MerInfoBean> merInfos
+				// 这里的merinfos是key位置上的List<MerInfoBean> merInfos
+				//如果
 				List<MerInfoBean> goodRules = YXEConfLoad.loadMerInfoByKey(YXEController.ROOT_FILE_PATH, type);
+				//如果当前Constants.ALL_TARGET_FETCH_RULE中key对应的抓取链接为空,则把获取到的商品列表目标链接信息存入Constants.ALL_TARGET_FETCH_RULE中
 				if (Constants.ALL_TARGET_FETCH_RULE.get(key).size() == 0) {
 					Constants.ALL_TARGET_FETCH_RULE.get(key).addAll(goodRules);
 				}
@@ -123,10 +147,14 @@ public class YXEConfLoad {
 				for (int r = 0; r < c; r++) {
 					try {
 						MerInfoBean mib = merInfos.get(r);
+						//根据目标网站商品列表配置信息MerInfoBean创建商品列表抓取规则
 						GoodListRule listRule = SpliderService.createFetchRules(mib.getMerName(), mib.getMerHost(), mib.getMerType(), BaseRule.GET, mib.getSrcHost(), mib.getSrcLink(), fetchStyle, mib.getSrcLink());
+						//为当前的商品列表抓取规则设置自由变量,默认为目标网站的名称描述,如55haitaoShort_4
 						listRule.setFreeStr(key);
 						//这一步应该放在SpliderService.createFetchRules中完成
+						//为当前的商品列表抓取规则设置目标网站类型,如55haitaoShort_4对应4
 						listRule.setTargetType(Integer.valueOf(tpyeInt));
+						//将当前生成的商品抓取链接规则写入商品列表抓取队列
 						Constants.ON_FETCHING_RULE.add(listRule);
 					} catch (Exception e) {
 						log.info(e.getLocalizedMessage(), e.getCause());
@@ -226,11 +254,11 @@ public class YXEConfLoad {
 			break;
 		case Constants.SHENME_ZHIDE_MAI:
 			// targetName = "什么值得买";
-			dfr.setTitleCssStyle("div[class=article-right]#h1");// h1[class=article_title]
+			dfr.setTitleCssStyle("div[class=article-right]#em[itemprop=name]");// h1或h1[class=article_title]
 			dfr.setDescCssStyle("div[class=item-box item-preferential]#p,2");
 			dfr.setTrueLinkCssStyle("div[class=buy]#link");
 			dfr.setImgCssStyle("img[itemprop=image]");
-			dfr.setTypeCssStyle("div[class=crumbs]#a,2");
+			dfr.setTypeCssStyle("div[class=crumbs]#a,1");
 			break;
 		case Constants.WUWU_HAITAO:
 			// targetName = "55海淘";
@@ -262,6 +290,7 @@ public class YXEConfLoad {
 
 	}
 
+	@Deprecated
 	public synchronized static void autoFetch(String filePath) {
 		/// 根据当前情况创建{&&
 		log.info(AppConfig.formatLog("------------------->start auto fetch(ROOT_FILE_PATH:" + YXEController.ROOT_FILE_PATH + ")<-------------------"));

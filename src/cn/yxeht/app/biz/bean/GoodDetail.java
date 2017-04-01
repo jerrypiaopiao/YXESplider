@@ -42,6 +42,8 @@ public class GoodDetail implements Serializable {
 	private String type;
 	
 	private String goodHost;
+	
+	private String fetch_link;
 
 	public String getGoodTitle() {
 		return goodTitle;
@@ -134,6 +136,14 @@ public class GoodDetail implements Serializable {
 
 	public void setGoodHost(String goodHost) {
 		this.goodHost = goodHost;
+	}
+
+	public String getFetch_link() {
+		return fetch_link;
+	}
+
+	public void setFetch_link(String fetch_link) {
+		this.fetch_link = fetch_link;
 	}
 
 }

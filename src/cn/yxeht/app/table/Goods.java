@@ -55,23 +55,27 @@ public class Goods extends Model<Goods> {
 	 * `state` tinyint(1) NOT NULL DEFAULT '1' COMMENT '1草稿2发布',
 	 * `isaddintegral` tinyint(1) NOT NULL DEFAULT '1' COMMENT '1默认2已添加',
 	 * `clicks` int(10) NOT NULL DEFAULT '0' COMMENT '点击次数',
-	 * 
+	 * `catch_link` varchar(1024) DEFAULT NULL COMMENT '抓取链接',
 	 * PRIMARY KEY (`id`)
 	 * ) ENGINE=MyISAM AUTO_INCREMENT=8028 DEFAULT CHARSET=utf8;
 	 */
 	
 	public static Goods me = new Goods();
 	
-	public Goods convert(GoodDetail goodDetail, String user, String uid, String typeId, String typeName, String merchantId, String merchantName){
+	public Goods convert(GoodDetail goodDetail, String user, String uid, String typeId, String typeName, String merchantId, String merchantName, String catch_link){
 		Goods goods = new Goods();
 		goods.set("type", 1);
 		goods.set("goodstypeid", typeId);
 		goods.set("goodstypename", typeName);
-		goods.set("merchantid", merchantId);
-		if(merchantName.length() > 20){
-			merchantName = merchantName.substring(0, 20);
+		if(!TextUtil.isEmpty(merchantId)){
+			goods.set("merchantid", merchantId);
 		}
-		goods.set("merchantname", merchantName);
+		if(!TextUtil.isEmpty(merchantName)){
+			if(merchantName.length() > 20){
+				merchantName = merchantName.substring(0, 20);
+			}
+			goods.set("merchantname", merchantName);
+		}
 		String name = goodDetail.getGoodTitle();
 		if(TextUtil.isEmpty(name)){
 			name = "-------unknown-------";
@@ -91,8 +95,9 @@ public class Goods extends Model<Goods> {
 		goods.set("starttime", 0);
 		goods.set("endtime", 0);
 		
-		goods.set("hrefold", goodDetail.getGoodSrcLink());
-		goods.set("hrefnew", goodDetail.getYxehtLink());
+//		goods.set("hrefold", goodDetail.getGoodSrcLink());
+		goods.set("hrefold", goodDetail.getYxehtLink());
+//		goods.set("hrefnew", goodDetail.getYxehtLink());
 		goods.set("mpic", 1);
 		goods.set("loved", 0);
 		goods.set("addthemes", 0);
@@ -103,6 +108,7 @@ public class Goods extends Model<Goods> {
 		goods.set("state", 1);
 		goods.set("isaddintegral", 2);
 		goods.set("clicks", 0);
+		goods.set("catch_link", catch_link);
 		return goods;
 	}
 	

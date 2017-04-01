@@ -10,20 +10,20 @@ public class SpliderInfo extends Model<SpliderInfo> {
 	private static final long serialVersionUID = -6345668819802716871L;
 
 	/*
-	 * CREATE TABLE `h_splider_info` (
+	 *CREATE TABLE `h_splider_info` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `h_rule_name` VARCHAR(45) NOT NULL,
-  `h_mer_host` TEXT NOT NULL,
+  `h_rule_name` varchar(45) NOT NULL,
+  `h_mer_host` text NOT NULL,
   `h_good_source` varchar(120) NOT NULL,
   `h_good_link` text NOT NULL,
   `h_catch_state` int(10) unsigned NOT NULL,
   `h_catch_reson` text,
-  `h_src_type` INT NOT NULL,
-  `h_src_free_str` TEXT NULL,
+  `h_src_type` int(11) NOT NULL,
+  `h_src_free_str` text,
+  `h_create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `h_update_time` timestamp NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-ALTER TABLE `httest`.`h_splider_info` 
-ADD COLUMN `h_src_type` INT NOT NULL AFTER `h_catch_reson`;
+) ENGINE=InnoDB AUTO_INCREMENT=41524 DEFAULT CHARSET=utf8;
 	 */
 	public static final SpliderInfo me = new SpliderInfo();
 	

@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import cn.yxeht.app.constants.AmazonCfgInfo;
 import cn.yxeht.app.constants.Constants;
 import cn.yxeht.app.constants.MSDFetchRule;
 import cn.yxeht.app.exception.JsoupDocException;
+import cn.yxeht.app.quartz.AutoFetchJobV2;
 import cn.yxeht.app.table.GoodInfo;
 import cn.yxeht.app.table.Goods;
 import cn.yxeht.app.table.Goodstype;
@@ -105,23 +107,28 @@ public class SpliderService {
 	}
 
 	/**
-	 * 抓取商品列表,将商品详情链接信息存入h_splider_info表中(规则自动生成)
+	 * 抓取商品列表,将商品详情链接信息存入h_splider_info表中(规则自动生成),
+	 * <br/>
+	 * quartz ({@link AutoFetchJobV2}) 定时任务就是要抓取这些内容
 	 * 
 	 * @param refresh
 	 *            是否需要更新目标网站信息
 	 * @param path
 	 *            当前项目绝对路径,用于加载指定目录下的配置文件
 	 * @param targetWebs
-	 *            指定抓取某个网站
+	 *            指定抓取某个网站,未指定的情况下会把所有的目标网站信息都抓取下来
 	 */
 	public synchronized static void fetchGoodLinkByRules(boolean refresh, String path, String... targetWebs) {
 		// 加载Constants.ON_FETCHING_RULE,需要抓取的商品列表的规则集合
 		YXEConfLoad.loadFetchGoodListRule(refresh, path, targetWebs);
+		// 抓取商品详情链接并存入h_splider_info文件
 		fetchGoodLinkByRules(Constants.ON_FETCHING_RULE);
 	}
 
 	/**
-	 * 抓取商品列表,将商品详情链接信息存入h_splider_info表中(指定规则)
+	 * 根据GoodListRule商品列表抓取规则抓取商品列表信息,
+	 * <br/>
+	 * 将商品详情链接存入h_splider_info表中(指定规则)
 	 * 
 	 * @param ruleList
 	 */
@@ -146,6 +153,8 @@ public class SpliderService {
 					sinfo.set("h_catch_state", SpliderInfo.UN_FETCH);
 					sinfo.set("h_src_type", rule.getTargetType());
 					sinfo.set("h_src_free_str", TextUtil.isEmpty(rule.getFreeStr()) ? "" : rule.getFreeStr());
+//					sinfo.set("h_create_time", new Timestamp(System.currentTimeMillis()));//新增时默认系统当前时间
+//					sinfo.set("h_update_time", new Timestamp(System.currentTimeMillis()));//新增时默认系统当前时间
 					boolean isSaved = sinfo.save();
 					log.info(AppConfig.formatLog("fetch good link by rules:save link [" + link + "] to database, save flag is [" + isSaved + "]!"));
 				} else {
@@ -253,6 +262,7 @@ public class SpliderService {
 					// TODO 这里是权宜之计,对于SMZDM上面不能识别的链接进行处理
 					sinfo.set("h_catch_state", SpliderInfo.FETCH_FAILED);
 					sinfo.set("h_catch_reson", "link["+link+"]:SMZDM yxeLink is null");
+					sinfo.set("h_update_time", new Timestamp(System.currentTimeMillis()));
 					boolean updateFlag = sinfo.update();
 					log.info(AppConfig.formatLog("\n fetchGoodOnLink#task-yxelink-filter:[" + goodSrcType + "][yxeLink:" + yxeLink + "]为空,跳过商品[\n" + gd + "\n], updateFlag:"+updateFlag));
 					return -1;
@@ -274,6 +284,7 @@ public class SpliderService {
 		if (gd == null || TextUtil.isEmpty(goodTypeId)) {
 			sinfo.set("h_catch_state", SpliderInfo.FETCH_FAILED);
 			sinfo.set("h_catch_reson", "link["+link+"]:goodTypeId[" + goodTypeId + "] or good[" + (gd == null) + "] is null");
+			sinfo.set("h_update_time", new Timestamp(System.currentTimeMillis()));
 			boolean updateFlag = sinfo.update();
 			log.info(AppConfig.formatLog("fetchGoodOnLink#goodTypeId[" + goodTypeId + "] or good[" + (gd == null) + "] is null, ingore this good cause  1. updateFlag:"+updateFlag));
 			return -1;
@@ -282,6 +293,7 @@ public class SpliderService {
 		if (TextUtil.isEmpty(gd.getGoodTitle()) || TextUtil.isEmpty(gd.getGoodSrcLink()) || TextUtil.isEmpty(gd.getYxehtLink())) {
 			sinfo.set("h_catch_state", SpliderInfo.FETCH_FAILED);
 			sinfo.set("h_catch_reson", "link["+link+"]:goodTitle[" + gd.getGoodTitle() + "] or goodSrcLink[" + gd.getGoodSrcLink() + "] or YxeHtLink[" + gd.getYxehtLink() + "] is null");
+			sinfo.set("h_update_time", new Timestamp(System.currentTimeMillis()));
 			boolean updateFlag = sinfo.update();
 			log.info(AppConfig.formatLog("fetchGoodOnLink#goodTitle[" + gd.getGoodTitle() + "] or goodSrcLink[" + gd.getGoodSrcLink() + "] or YxeHtLink[" + gd.getYxehtLink() + "] is null, ingore this good cause 2. updateFlag:"+updateFlag));
 			return -1;
@@ -296,9 +308,11 @@ public class SpliderService {
 		if (mer == null) {
 			sinfo.set("h_catch_state", SpliderInfo.FETCH_FAILED);
 			sinfo.set("h_catch_reson", "link["+link+"]:can not find merchant [" + gd.getGoodHost() + "] in database, ingore good [" + gd.getGoodTitle() + "]");
+			sinfo.set("h_update_time", new Timestamp(System.currentTimeMillis()));
 			boolean updateFlag = sinfo.update();
 			log.info(AppConfig.formatLog("fetchGoodOnLink#can not find merchant [" + gd.getGoodHost() + "] in database, ingore good [" + gd.getGoodTitle() + "]. updateFlag:"+updateFlag));
-			return -1;
+//			log.info(AppConfig.formatLog("fetchGoodOnLink#can not find merchant [" + gd.getGoodHost() + "] in database, save good [" + gd.getGoodTitle() + "] to h_goods. updateFlag:"+updateFlag));
+//			return -1;
 		}
 
 		if (type == null) {
@@ -309,6 +323,7 @@ public class SpliderService {
 		if (type == null) {
 			sinfo.set("h_catch_state", SpliderInfo.FETCH_FAILED);
 			sinfo.set("h_catch_reson", "link["+link+"]:can not find goodType by typeId [" + goodTypeId + "] in database, ingore good [" + gd.getGoodTitle() + "]");
+			sinfo.set("h_update_time", new Timestamp(System.currentTimeMillis()));
 			boolean updateFlag = sinfo.update();
 			log.info(AppConfig.formatLog("fetchGoodOnLink#can not find goodType by typeId [" + goodTypeId + "] in database, ingore good [" + gd.getGoodTitle() + "]. updateFlag:"+updateFlag));
 			return -1;
@@ -321,8 +336,9 @@ public class SpliderService {
 		BizUserTags bizUserTags = AmazonCfgInfo.ALL_AMAZON_HOST_TAG_MATCH.get(hostNoHttp);
 		
 		if (tmp == null) {
-			log.info(AppConfig.formatLog("fetchGoodOnLink#gd[" + gd + "],\n type[" + type + "],\n mer[" + mer + "],\n bizUserTags[" + bizUserTags + "]"));
-			Goods goods = Goods.me.convert(gd, bizUserTags != null ? bizUserTags.getBizManName() : AppConfig.bizManName, bizUserTags != null ? bizUserTags.getBizManId() : String.valueOf(AppConfig.bizManId), goodTypeId, type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"));
+//			log.info(AppConfig.formatLog("fetchGoodOnLink#gd[" + gd + "],\n type[" + type + "],\n mer[" + mer + "],\n bizUserTags[" + bizUserTags + "]"));
+			log.info(AppConfig.formatLog("fetchGoodOnLink#gd[" + gd + "],\n bizUserTags[" + bizUserTags + "]"));
+			Goods goods = Goods.me.convert(gd, bizUserTags != null ? bizUserTags.getBizManName() : AppConfig.bizManName, bizUserTags != null ? bizUserTags.getBizManId() : String.valueOf(AppConfig.bizManId), goodTypeId, type.getStr("name"), null, null, gd.getFetch_link());
 			// TODO 商品信息保存
 			if (!AppConfig.IS_DEV) {
 				boolean goodSave = goods.save();
@@ -371,6 +387,7 @@ public class SpliderService {
 		
 		sinfo.set("h_catch_state", SpliderInfo.FETCH_SUCCESS);
 		sinfo.set("h_catch_reson", "fetch success");
+		sinfo.set("h_update_time", new Timestamp(System.currentTimeMillis()));
 		boolean updateFlag = sinfo.update();
 		
 		return flag;
@@ -520,15 +537,15 @@ public class SpliderService {
 				}
 
 				// TODO 数据不存数据库的问题就出在这里了,是merHost出了问题
-				Merchant mer = Merchant.me.findFirst("select * from h_merchant where url like '%" + gd.getGoodHost() + "%' and whetherUse=1");
+				Merchant mer1 = Merchant.me.findFirst("select * from h_merchant where url like '%" + gd.getGoodHost() + "%' and whetherUse=1");
 				log.info(AppConfig.formatLog("fetch good detail by rules#find merchant by host [" + gd.getGoodHost() + "] in database"));
 				Goodstype type = AppConfig.GOODTYE_MAP.get(goodTypeId);
 				Goods tmp = Goods.me.findFirst("select * from h_goods where hrefnew=?", gd.getYxehtLink());
 
-				if (mer == null) {
-					log.info(AppConfig.formatLog("fetch good detail by rules#can not find merchant [" + gd.getGoodHost() + "] in database, ingore good [" + gd.getGoodTitle() + "]"));
-					continue;
-				}
+//				if (mer == null) {
+//					log.info(AppConfig.formatLog("fetch good detail by rules#can not find merchant [" + gd.getGoodHost() + "] in database, ingore good [" + gd.getGoodTitle() + "]"));
+//					continue;
+//				}
 
 				if (type == null) {
 					log.info(AppConfig.formatLog("fetch good detail by rules#find goodType by typeId [" + goodTypeId + "]"));
@@ -547,8 +564,9 @@ public class SpliderService {
 				BizUserTags bizUserTags = AmazonCfgInfo.ALL_AMAZON_HOST_TAG_MATCH.get(hostNoHttp);
 
 				if (tmp == null) {
-					log.info(AppConfig.formatLog("fetch good detail by rules#gd[" + gd + "],\n type[" + type + "],\n mer[" + mer + "],\n bizUserTags[" + bizUserTags + "]"));
-					Goods goods = Goods.me.convert(gd, bizUserTags != null ? bizUserTags.getBizManName() : AppConfig.bizManName, bizUserTags != null ? bizUserTags.getBizManId() : String.valueOf(AppConfig.bizManId), goodTypeId, type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"));
+//					log.info(AppConfig.formatLog("fetch good detail by rules#gd[" + gd + "],\n type[" + type + "],\n mer[" + mer + "],\n bizUserTags[" + bizUserTags + "]"));
+					log.info(AppConfig.formatLog("fetch good detail by rules#gd[" + gd + "], bizUserTags[" + bizUserTags + "]"));
+					Goods goods = Goods.me.convert(gd, bizUserTags != null ? bizUserTags.getBizManName() : AppConfig.bizManName, bizUserTags != null ? bizUserTags.getBizManId() : String.valueOf(AppConfig.bizManId), goodTypeId, type.getStr("name"), null, null, gd.getFetch_link());
 					// TODO 商品信息保存
 					if (!AppConfig.IS_DEV) {
 						boolean goodSave = goods.save();
@@ -601,7 +619,6 @@ public class SpliderService {
 
 	/**
 	 * 创建商品列表抓取规则
-	 * @deprecated
 	 * @param ruleName
 	 *            规则名称
 	 * @param merHost
@@ -806,7 +823,7 @@ public class SpliderService {
 						childCssArr = childCss.split(",");
 					}
 
-					if (!TextUtil.isEmpty(childCss) && childCssArr != null && childCssArr.length > 1) {
+					if (!TextUtil.isEmpty(childCss) && childCssArr != null && childCssArr.length >= 1) {
 						for (int i = 0; i < childCssArr.length; i++) {
 							String css = childCssArr[i];
 							children = title.select(css);
@@ -936,7 +953,7 @@ public class SpliderService {
 					}
 
 					if (TextUtil.isEmpty(urlTmp)) {
-						return null;
+						return null;//TODO 这里有一个获取商品原链为空的情况出现
 					}
 
 					if (!urlTmp.startsWith("http")) {
@@ -1007,7 +1024,7 @@ public class SpliderService {
 								imgSrc = imgSrc.substring(0, imgSrc.lastIndexOf("@"));
 							}
 							// TODO 没得比
-							if (imgSrc.contains("-") && !goodDetail.getGoodSrcLink().contains("smzdm.com")) {
+							if (imgSrc.contains("-") && (imgSrc.lastIndexOf("-") > imgSrc.lastIndexOf(".")) && !goodDetail.getGoodSrcLink().contains("smzdm.com")) {
 								imgSrc = imgSrc.substring(0, imgSrc.lastIndexOf("-"));
 							}
 							// TODO 逛丢
@@ -1053,7 +1070,7 @@ public class SpliderService {
 
 					if (types != null && types.size() > 0) {
 						String aTag = "a";
-						int depth = 2;
+						int depth = 1;
 
 						if (childCssArr != null) {
 							int length = childCssArr.length;
@@ -1072,7 +1089,8 @@ public class SpliderService {
 						// 获取类型
 						if (realType != null && !TextUtil.isEmpty(realType.text().trim())) {
 							String typeStr = realType.text().trim();
-							SpliderGoodType sgt = SpliderGoodType.me.findFirst("select * from h_splider_type where h_src_type_str like '%typeStr%' and h_src_id=?", targetWebId);
+							//TODO 类型不对应问题修改
+							SpliderGoodType sgt = SpliderGoodType.me.findFirst("select * from h_splider_type where h_src_type_str like '%"+typeStr+"%' and h_src_id=?", targetWebId);
 							System.err.println("aTag:" + aTag + ", realTypes.size():" + realTypes.size() + ", realTypes:" + realTypes.text() + ", typeStr:" + typeStr);
 							String typeId = "6";
 							if(sgt != null){
@@ -1107,7 +1125,7 @@ public class SpliderService {
 			}
 
 			goodDetail.setzDirect(GoodDetail.NO_ZDIRECT);
-
+			goodDetail.setFetch_link(filePath);
 		} catch (IOException e) {
 			log.info(e.getLocalizedMessage(), e.getCause());
 			goodDetail.setType("6");
@@ -1165,9 +1183,11 @@ public class SpliderService {
 			}			
 
 		} catch (HttpStatusException e) {
-			System.out.println("-------->HttpStatusException:" + e.getLocalizedMessage());
-			e.printStackTrace();
-			return null;
+			log.info("HttpStatusException:" + e.getLocalizedMessage(), e.getCause());
+			if(TextUtil.isEmpty(goodSrcLink)){
+				goodSrcLink = e.getUrl();
+			}
+			return goodSrcLink;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

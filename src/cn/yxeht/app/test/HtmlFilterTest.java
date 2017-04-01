@@ -15,11 +15,14 @@ public class HtmlFilterTest {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String result = readTxtFromFile("/E/jerry/55_detail_html");
+		String result = readTxtFromFile("/E/jerry/smzdm_detail");
 //		System.out.println(result);
 		
 		Document doc = Jsoup.parse(result);
-		Elements pTags = doc.select("p");
+		String select = "div[class=article-right]";//"p"
+		Elements root = doc.select(select);
+		select = "em[itemprop=name]";
+		Elements pTags = root.select(select);
 		for(Element el : pTags){
 			el.select("a").remove();
 //			Elements children = el.children();

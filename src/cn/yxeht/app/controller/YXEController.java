@@ -412,9 +412,8 @@ public class YXEController extends Controller {
 			boolean is = true;
 			if (is) {
 				QuartzManager.removeJob(AutoFetchJob.TAG);
-				// QuartzManager.addJob(AutoFetchJob.TAG, fetchJob, "0 */" +
-				// time + " * * * ?");
-				QuartzManager.addJob(AutoFetchJob.TAG, fetchJob, "0 0 7-23 * * ?");
+				// QuartzManager.addJob(AutoFetchJob.TAG, fetchJob, "0 */" +  time + " * * * ?");
+				QuartzManager.addJob(AutoFetchJob.TAG, fetchJob, "0 0 7-23 * * ? *");
 			}
 
 			
@@ -425,7 +424,8 @@ public class YXEController extends Controller {
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					int rand = random.nextInt(5);
+					int rand = random.nextInt(3);
+					rand = rand <= 0 ? 1 : rand;
 					cacheTimeInMunite = rand * oneMunite;
 					System.out.println("i:" + i + ", cacheTime:" + cacheTimeInMunite + ", date:" + new Date());
 					SpliderInfo sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_catch_state=0 order by rand() limit 1");
@@ -465,8 +465,26 @@ public class YXEController extends Controller {
 		
 		 setAttr("fetch_message", message);
 		 
-		 render("/single_fetch.jsp");
+		 List<SpliderInfo> spliderInfos = SpliderInfo.me.find("select * from httest.h_splider_info where h_catch_state=?", SpliderInfo.UN_FETCH);
+			
+		setAttr("splider_infos", spliderInfos);
 		 
+		 render("/single_fetch.jsp");
+//		 render("/splider_infos.jsp");
+		 
+	}
+	
+	public void getAllSpliderInfo(){
+		String fetchState = getPara("fetch_state");
+		if(TextUtil.isEmpty(fetchState)){
+			fetchState = String.valueOf(SpliderInfo.UN_FETCH);
+		}
+		List<SpliderInfo> spliderInfos = SpliderInfo.me.find("select * from httest.h_splider_info where h_catch_state=?", fetchState);
+		
+		setAttr("splider_infos", spliderInfos);
+		
+		render("/splider_infos.jsp");
+		
 	}
 
 	static long oneSecond = 1000;

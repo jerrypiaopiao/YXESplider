@@ -32,6 +32,7 @@ import cn.yxeht.app.table.Picture;
 import cn.yxeht.app.utils.DateUtils;
 import cn.yxeht.app.utils.TextUtil;
 
+@Deprecated
 public class FetchAmazonJob implements Job {
 
 	private static final Logger log = Logger.getLogger(FetchAmazonJob.class);
@@ -168,7 +169,7 @@ public class FetchAmazonJob implements Job {
 
 					if (tmp == null) {
 						Goods goods = Goods.me.convert(goodDetail, bizUserTags != null ? bizUserTags.getBizManName() : AppConfig.bizManName, bizUserTags != null ? bizUserTags.getBizManId() : String.valueOf(AppConfig.bizManId), goodTypeId,
-								type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"));
+								type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"), "");
 						// TODO 商品信息保存
 						if (!AppConfig.IS_DEV) {
 //							log.info(AppConfig.formatLog("save good info:[" + goodDetail.getGoodTitle() + "]"));

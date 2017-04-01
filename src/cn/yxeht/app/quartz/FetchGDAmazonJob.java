@@ -29,6 +29,7 @@ import cn.yxeht.app.table.Merchant;
 import cn.yxeht.app.table.Picture;
 import cn.yxeht.app.utils.DateUtils;
 
+@Deprecated
 public class FetchGDAmazonJob implements Job {
 
 	public static final String TAG = "GuangDiu_Fetch_job";
@@ -74,7 +75,7 @@ public class FetchGDAmazonJob implements Job {
 						Goodstype type =AppConfig.GOODTYE_MAP.get(goodTypeId);
 						Goods tmp = Goods.me.findFirst("select * from h_goods where hrefnew=?", goodDetail.getYxehtLink());
 						if(tmp == null){
-							Goods goods = Goods.me.convert(goodDetail, AppConfig.bizManName, String.valueOf(AppConfig.bizManId), goodTypeId, type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"));
+							Goods goods = Goods.me.convert(goodDetail, AppConfig.bizManName, String.valueOf(AppConfig.bizManId), goodTypeId, type.getStr("name"), String.valueOf(mer.getInt("id")), mer.getStr("name"), "");
 							goods.save();
 							GoodInfo goodInfo = new GoodInfo();
 							goodInfo.set("goodsid", goods.getInt("id"));

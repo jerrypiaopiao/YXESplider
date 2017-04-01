@@ -169,25 +169,29 @@ public class LinkConvertor {
 				yxeLink = yxeLink.substring(0, yxeLink.length() - 1);
 			}
 
-			yxeLink = yxeLink + "?tag=" + tag;
+			yxeLink = yxeLink;// + "?tag=" + tag;
 
 			break;
 		case Constants.MER_UNION_TYPE_URL:
 			return null;
 		case Constants.MER_UNION_TYPE_URL_SRC_TAG:
-			// 示例:https://www.linkhaitao.com/index.php?mod=lhdeal&track=1a79oYhYaFE3_a_b3LdL_bo1OzE4XPBj3OpURqOE6ouY5ClKVlWoLmkKYBp&new=http%3A%2F%2Fwww.gnc.com&tag=mutou
+			// 示例:https://www.linkhaitao.com/index.php?mod=lhdeal&track=1a79oYhYaFE3_a_b3LdL_bo1OzE4XPBj3OpURqOE6ouY5ClKVlWoLmkKYBp&new=
+			//http%3A%2F%2Fwww.gnc.com&tag=mutou
 			// commissionUrl =
-			String[] tmpCommUrlArr = commissionUrl.split("http");
+			/*String[] tmpCommUrlArr = commissionUrl.split("http");
 			if(tmpCommUrlArr.length == 2){
 				yxeLink = tmpCommUrlArr[0] + (srcLink.startsWith("http") ? srcLink : (http + srcLink)) + tmpCommUrlArr[1].substring(tmpCommUrlArr[1].lastIndexOf("&"));
 			}else{
 				yxeLink = tmpCommUrlArr[0] + (srcLink.startsWith("http") ? srcLink : (http + srcLink));
-			}
+			}*/
+			
+			yxeLink = (srcLink.startsWith("http") ? srcLink : (http + srcLink));
 			
 			break;
 		case Constants.MER_UNION_TYPE_URLTAG_SRC:
 			// 示例:http://www.jdoqocy.com/click-7786390-10870161?sid=mutou&url=http%3A%2F%2Fwww.ashford.com%2Fus%2Fhome
-			yxeLink = commissionUrl.substring(0, commissionUrl.lastIndexOf("http")) + (srcLink.startsWith("http") ? srcLink : (http + srcLink));
+//			yxeLink = commissionUrl.substring(0, commissionUrl.lastIndexOf("http")) + (srcLink.startsWith("http") ? srcLink : (http + srcLink));
+			yxeLink = (srcLink.startsWith("http") ? srcLink : (http + srcLink));
 			break;
 		}
 		

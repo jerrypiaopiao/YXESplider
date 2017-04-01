@@ -26,6 +26,7 @@ function load(){
 </script>
 </head>
 <body>
+	<a href="getAllSpliderInfo">返回列表</a>
 	<h2>定时任务</h2><b><font color="#D50000">${fetch_message}</font></b>
 </body>
 </html>
