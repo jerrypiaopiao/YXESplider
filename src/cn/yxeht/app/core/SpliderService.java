@@ -1090,7 +1090,13 @@ public class SpliderService {
 						if (realType != null && !TextUtil.isEmpty(realType.text().trim())) {
 							String typeStr = realType.text().trim();
 							//TODO 类型不对应问题修改
-							SpliderGoodType sgt = SpliderGoodType.me.findFirst("select * from h_splider_type where h_src_type_str like '%"+typeStr+"%' and h_src_id=?", targetWebId);
+							SpliderGoodType sgt = null;
+							log.info(AppConfig.formatLog("fetchGoodDetail#targetWebId:"+targetWebId));
+							try {
+								sgt = SpliderGoodType.me.findFirst("select * from h_splider_type where h_src_type_str like '%"+typeStr+"%' and h_src_id=?", targetWebId);
+							} catch (Exception e1) {
+								log.info(e1.getLocalizedMessage(), e1.getCause());
+							}
 							System.err.println("aTag:" + aTag + ", realTypes.size():" + realTypes.size() + ", realTypes:" + realTypes.text() + ", typeStr:" + typeStr);
 							String typeId = "6";
 							if(sgt != null){
