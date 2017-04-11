@@ -1,2 +1,2 @@
 # YXESplider
-yangxiaoer splider
+this is just a personal project.

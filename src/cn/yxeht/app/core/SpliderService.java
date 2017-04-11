@@ -257,7 +257,14 @@ public class SpliderService {
 				String host = requestUrl.substring(0, requestUrl.lastIndexOf("/"));
 				String realLink = HaiTaoSpliderService.fetchRealLink(host + "/old/parseDetail?detail_link=" + link);
 				String[] tmp = LinkConvertor.convertToYxeLink(merHost, realLink, link);
-				String yxeLink = tmp[0];
+				
+				String yxeLink = null;
+				if(tmp == null || tmp.length == 0){
+					yxeLink = "";
+				}else{
+					yxeLink = tmp[0];
+				}
+				
 				if (TextUtil.isEmpty(yxeLink)) {
 					// TODO 这里是权宜之计,对于SMZDM上面不能识别的链接进行处理
 					sinfo.set("h_catch_state", SpliderInfo.FETCH_FAILED);
@@ -772,6 +779,7 @@ public class SpliderService {
 
 		} catch (IOException | JsoupDocException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 		}
 
 		return goodDetailLinks;
@@ -1196,9 +1204,11 @@ public class SpliderService {
 			return goodSrcLink;
 		} catch (IOException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			return null;
 		} catch (JsoupDocException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			return null;
 		}
 
@@ -1262,12 +1272,15 @@ public class SpliderService {
 			}
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			// log.error(AppConfig.formatLog("pic save failed"), e.getCause());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			// log.error(AppConfig.formatLog("pic save failed"), e.getCause());
 		} catch (IOException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			// log.error(AppConfig.formatLog("pic save failed"), e.getCause());
 		}
 

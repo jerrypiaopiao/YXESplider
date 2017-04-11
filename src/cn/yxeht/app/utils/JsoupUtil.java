@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,6 +13,8 @@ import cn.yxeht.app.exception.JsoupDocException;
 import cn.yxeht.app.rule.Rule;
 
 public class JsoupUtil {
+	
+	private static Logger log = Logger.getLogger(JsoupUtil.class);
 
 	public static final boolean IS_LOCAL_WEB_PAGE = false;
 	public static final boolean SHOW_JSOUP_LOG = true;
@@ -88,6 +91,7 @@ public class JsoupUtil {
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				log.info(e.getLocalizedMessage(), e.getCause());
 			}
 		}
 		

@@ -370,9 +370,11 @@ public class YXEController extends Controller {
 			setAttr("start_job_info", "定时任务启动成功");
 		} catch (SchedulerException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			setAttr("start_job_info", "定时任务启动失败，请重试[" + e.getCause().getLocalizedMessage() + "]");
 		} catch (ParseException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			setAttr("start_job_info", "定时任务启动失败，请重试[" + e.getCause().getLocalizedMessage() + "]");
 		}
 		render("/hello.jsp");
@@ -438,9 +440,11 @@ public class YXEController extends Controller {
 			setAttr("start_job_info", "定时任务启动成功");
 		} catch (SchedulerException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			setAttr("start_job_info", "定时任务启动失败，请重试[" + e.getCause().getLocalizedMessage() + "]");
 		} catch (ParseException e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 			setAttr("start_job_info", "定时任务启动失败，请重试[" + e.getCause().getLocalizedMessage() + "]");
 		}
 

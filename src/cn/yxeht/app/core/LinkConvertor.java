@@ -51,6 +51,7 @@ public class LinkConvertor {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 		}
 		
 		log.info(AppConfig.formatLog("convertToYxeLink#replace http head#http:"+http+", srcLink:"+srcLink));

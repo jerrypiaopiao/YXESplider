@@ -7,7 +7,12 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 
+import org.apache.log4j.Logger;
+
 public class TextUtil {
+	
+	private static Logger log = Logger.getLogger(TextUtil.class);
+	
 	public static boolean isEmpty(String str) {
 		if (str == null || str.trim().length() == 0) {
 			return true;
@@ -97,6 +102,7 @@ public class TextUtil {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 		}
 
 		return result;
@@ -114,6 +120,7 @@ public class TextUtil {
 			flag = true;
 		} catch (Exception e) {
 			e.printStackTrace();
+			log.info(e.getLocalizedMessage(), e.getCause());
 		} finally {
 			if (mm != null) {
 				mm.close();
