@@ -255,7 +255,7 @@ public class YXEConfLoad {
 		case Constants.SHENME_ZHIDE_MAI:
 			// targetName = "什么值得买";
 			dfr.setTitleCssStyle("div[class=article-right]#em[itemprop=name]");// h1或h1[class=article_title]
-			dfr.setDescCssStyle("div[class=item-box item-preferential]#p,2");
+			dfr.setDescCssStyle("div[class=item-box item-preferential]#p,1");
 			dfr.setTrueLinkCssStyle("div[class=buy]#link");
 			dfr.setImgCssStyle("img[itemprop=image]");
 			dfr.setTypeCssStyle("div[class=crumbs]#a,1");

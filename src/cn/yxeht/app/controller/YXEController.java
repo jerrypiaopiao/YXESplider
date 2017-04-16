@@ -405,9 +405,19 @@ public class YXEController extends Controller {
 			log.info("------------>appointed target, clear target fetch rule set");
 			Constants.ALL_TARGET_FETCH_RULE.clear();
 		}
+		
+		if(TextUtil.isEmpty(WEB_ROOT_PATH)){
+			WEB_ROOT_PATH = getRequest().getSession().getServletContext().getRealPath("/");
+		}
 
 		try {
-			AutoFetchJobV2 fetchJob = new AutoFetchJobV2(refresh, getRequest().getSession().getServletContext().getRealPath("/"));
+			if(TextUtil.isEmpty(WEB_ROOT_PATH)){
+				WEB_ROOT_PATH = getRequest().getSession().getServletContext().getRealPath("/");
+			}
+			
+			IS_REFRESH = refresh;
+			
+			AutoFetchJobV2 fetchJob = new AutoFetchJobV2(IS_REFRESH, WEB_ROOT_PATH);
 			if (isRunNow) {
 				SpliderService.fetchGoodLinkByRules(refresh, getRequest().getSession().getServletContext().getRealPath("/"));
 			}
@@ -426,6 +436,9 @@ public class YXEController extends Controller {
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
+					if(random == null){
+						random = new Random();
+					}
 					int rand = random.nextInt(3);
 					rand = rand <= 0 ? 1 : rand;
 					cacheTimeInMunite = rand * oneMunite;
@@ -498,5 +511,8 @@ public class YXEController extends Controller {
 	static int i = 0;
 	static Random random = new Random();
 	static Timer timer = null;
+	
+	public static String WEB_ROOT_PATH;
+	public static boolean IS_REFRESH;
 
 }

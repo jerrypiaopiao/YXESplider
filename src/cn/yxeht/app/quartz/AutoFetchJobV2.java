@@ -8,6 +8,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import cn.yxeht.app.AppConfig;
+import cn.yxeht.app.controller.YXEController;
 import cn.yxeht.app.core.SpliderService;
 
 public class AutoFetchJobV2 implements Job {
@@ -21,6 +22,11 @@ public class AutoFetchJobV2 implements Job {
 	private boolean refresh = true;
 	
 	private String path = "";
+	
+	public AutoFetchJobV2(){
+		this.refresh = YXEController.IS_REFRESH;
+		this.path = YXEController.WEB_ROOT_PATH;
+	}
 	
 	public AutoFetchJobV2(boolean refresh, String path) {
 		// TODO Auto-generated constructor stub
