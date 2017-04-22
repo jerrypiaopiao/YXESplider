@@ -57,7 +57,7 @@ public class AppConfig extends JFinalConfig {
 	public static String IMAGE_URL;
 	public static String USER_TAGS;
 	public static final boolean IS_DEV  = false;
-	public static final boolean IS_YXEHT = false;
+	public static final boolean IS_YXEHT = true;
 	
 	public static String smzdm = "";
 	

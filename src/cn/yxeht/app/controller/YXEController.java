@@ -4,8 +4,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -417,7 +419,8 @@ public class YXEController extends Controller {
 			
 			IS_REFRESH = refresh;
 			
-			AutoFetchJobV2 fetchJob = new AutoFetchJobV2(IS_REFRESH, WEB_ROOT_PATH);
+//			AutoFetchJobV2 fetchJob = new AutoFetchJobV2(IS_REFRESH, WEB_ROOT_PATH);
+			AutoFetchJobV2 fetchJob = new AutoFetchJobV2();
 			if (isRunNow) {
 				SpliderService.fetchGoodLinkByRules(refresh, getRequest().getSession().getServletContext().getRealPath("/"));
 			}
@@ -430,22 +433,39 @@ public class YXEController extends Controller {
 
 			
 			if(timer != null){
+				try {
+					timer.cancel();
+				} catch (Exception e) {
+					log.info(e.getLocalizedMessage(), e.getCause());
+				}
+				
 				timer = null;
+				
 			}
 			timer = new Timer();
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					if(random == null){
-						random = new Random();
+					try {
+						if(random == null){
+							random = new Random();
+						}
+						int rand = random.nextInt(4);
+						rand = rand <= 0 ? 1 : rand;
+						cacheTimeInMunite = rand * oneMunite;
+						System.out.println("i:" + i + ", cacheTime:" + cacheTimeInMunite + ", date:" + new Date());
+						SpliderInfo sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_catch_state=0 order by rand() limit 1");
+						int flag = -1;
+						if (sinfo != null) {
+							flag = SpliderService.fetchGoodOnLink(sinfo);
+						}else{
+							log.info("------------------->all good fetched, get good link again...");
+							SpliderService.fetchGoodLinkByRules(IS_REFRESH, getRequest().getSession().getServletContext().getRealPath("/"));
+						}
+						 log.info("auto fetch good sinfo["+sinfo+"] in "+rand + "munite, save flag is "+flag);
+					} catch (Exception e) {
+						log.info("============>Fetch_GOOD_OCCUR_ERROR, go to next", e.getCause());
 					}
-					int rand = random.nextInt(3);
-					rand = rand <= 0 ? 1 : rand;
-					cacheTimeInMunite = rand * oneMunite;
-					System.out.println("i:" + i + ", cacheTime:" + cacheTimeInMunite + ", date:" + new Date());
-					SpliderInfo sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_catch_state=0 order by rand() limit 1");
-					 int flag = SpliderService.fetchGoodOnLink(sinfo);
-					 log.info("auto fetch good sinfo["+sinfo+"] in "+rand + "munite, save flag is "+flag);
 					i++;
 				}
 			}, delay, cacheTimeInMunite);
@@ -514,5 +534,8 @@ public class YXEController extends Controller {
 	
 	public static String WEB_ROOT_PATH;
 	public static boolean IS_REFRESH;
+	
+	private static String currentTargetWeb;
+	public static Map<String, Integer> FETCH_COUNT_RECORD = new HashMap<String, Integer>(); 
 
 }

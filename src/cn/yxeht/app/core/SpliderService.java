@@ -31,6 +31,7 @@ import cn.yxeht.app.biz.rule.GoodListRule;
 import cn.yxeht.app.constants.AmazonCfgInfo;
 import cn.yxeht.app.constants.Constants;
 import cn.yxeht.app.constants.MSDFetchRule;
+import cn.yxeht.app.controller.YXEController;
 import cn.yxeht.app.exception.JsoupDocException;
 import cn.yxeht.app.quartz.AutoFetchJobV2;
 import cn.yxeht.app.table.GoodInfo;
@@ -119,6 +120,7 @@ public class SpliderService {
 	 *            指定抓取某个网站,未指定的情况下会把所有的目标网站信息都抓取下来
 	 */
 	public synchronized static void fetchGoodLinkByRules(boolean refresh, String path, String... targetWebs) {
+		
 		// 加载Constants.ON_FETCHING_RULE,需要抓取的商品列表的规则集合
 		YXEConfLoad.loadFetchGoodListRule(refresh, path, targetWebs);
 		// 抓取商品详情链接并存入h_splider_info文件
@@ -142,7 +144,7 @@ public class SpliderService {
 			// 将抓取的商品详情链接存入到数据库中
 			for (int j = 0; j < goodList.size(); j++) {
 				String link = goodList.get(j);
-				List<SpliderInfo> tmpSinfos = SpliderInfo.me.find("select * from h_splider_info where h_good_source=? and h_good_link=?", rule.getRuleName(), link);
+				List<SpliderInfo> tmpSinfos = SpliderInfo.me.find("select * from h_splider_info where h_rule_name=? and h_good_link=?", rule.getRuleName(), link);
 				if (tmpSinfos == null || tmpSinfos.size() == 0) {
 					// 保存临时链接
 					SpliderInfo sinfo = new SpliderInfo();
@@ -153,7 +155,7 @@ public class SpliderService {
 					sinfo.set("h_catch_state", SpliderInfo.UN_FETCH);
 					sinfo.set("h_src_type", rule.getTargetType());
 					sinfo.set("h_src_free_str", TextUtil.isEmpty(rule.getFreeStr()) ? "" : rule.getFreeStr());
-//					sinfo.set("h_create_time", new Timestamp(System.currentTimeMillis()));//新增时默认系统当前时间
+					sinfo.set("h_create_time", new Timestamp(System.currentTimeMillis()));//新增时默认系统当前时间
 //					sinfo.set("h_update_time", new Timestamp(System.currentTimeMillis()));//新增时默认系统当前时间
 					boolean isSaved = sinfo.save();
 					log.info(AppConfig.formatLog("fetch good link by rules:save link [" + link + "] to database, save flag is [" + isSaved + "]!"));

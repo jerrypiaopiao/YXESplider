@@ -23,16 +23,16 @@ public class AutoFetchJobV2 implements Job {
 	
 	private String path = "";
 	
-	public AutoFetchJobV2(){
-		this.refresh = YXEController.IS_REFRESH;
-		this.path = YXEController.WEB_ROOT_PATH;
-	}
-	
-	public AutoFetchJobV2(boolean refresh, String path) {
-		// TODO Auto-generated constructor stub
-		this.refresh = refresh;
-		this.path = path;
-	}
+//	public AutoFetchJobV2(){
+//		this.refresh = YXEController.IS_REFRESH;
+//		this.path = YXEController.WEB_ROOT_PATH;
+//	}
+//	
+//	public AutoFetchJobV2(boolean refresh, String path) {
+//		// TODO Auto-generated constructor stub
+//		this.refresh = refresh;
+//		this.path = path;
+//	}
 	
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -41,7 +41,8 @@ public class AutoFetchJobV2 implements Job {
 		synchronized (jobExecutionContext) {
 			log.info(AppConfig.formatLog(TAG+" start executing on "+new Date(System.currentTimeMillis())+"..."));
 			//开始执行自动抓取动作
-			SpliderService.fetchGoodLinkByRules(refresh, path);
+//			SpliderService.fetchGoodLinkByRules(refresh, path);
+			SpliderService.fetchGoodLinkByRules(YXEController.IS_REFRESH, YXEController.WEB_ROOT_PATH);
 		}
 	}
 	
