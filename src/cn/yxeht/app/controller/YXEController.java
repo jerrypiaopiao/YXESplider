@@ -2,6 +2,7 @@ package cn.yxeht.app.controller;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +35,8 @@ import cn.yxeht.app.table.Goodstype;
 import cn.yxeht.app.table.SpliderFilterWord;
 import cn.yxeht.app.table.SpliderGoodType;
 import cn.yxeht.app.table.SpliderInfo;
+import cn.yxeht.app.utils.DateUtils;
+import cn.yxeht.app.utils.ListUtil;
 import cn.yxeht.app.utils.TextUtil;
 
 public class YXEController extends Controller {
@@ -424,7 +427,7 @@ public class YXEController extends Controller {
 			if (isRunNow) {
 				SpliderService.fetchGoodLinkByRules(refresh, getRequest().getSession().getServletContext().getRealPath("/"));
 			}
-			boolean is = true;
+			boolean is = false;
 			if (is) {
 				QuartzManager.removeJob(AutoFetchJob.TAG);
 				// QuartzManager.addJob(AutoFetchJob.TAG, fetchJob, "0 */" +  time + " * * * ?");
@@ -432,18 +435,22 @@ public class YXEController extends Controller {
 			}
 
 			
-			if(timer != null){
+			removeTargetWeb = null;
+			FETCH_COUNT_RECORD.clear();
+			FETCHED_WEB_SITE.clear();
+			
+			if(goodDetailFetchTimer != null){
 				try {
-					timer.cancel();
+					goodDetailFetchTimer.cancel();
 				} catch (Exception e) {
 					log.info(e.getLocalizedMessage(), e.getCause());
 				}
 				
-				timer = null;
+				goodDetailFetchTimer = null;
 				
 			}
-			timer = new Timer();
-			timer.schedule(new TimerTask() {
+			goodDetailFetchTimer = new Timer();
+/*			goodDetailFetchTimer.schedule(new TimerTask() {
 				@Override
 				public void run() {
 					try {
@@ -454,9 +461,11 @@ public class YXEController extends Controller {
 						rand = rand <= 0 ? 1 : rand;
 						cacheTimeInMunite = rand * oneMunite;
 						System.out.println("i:" + i + ", cacheTime:" + cacheTimeInMunite + ", date:" + new Date());
+						//需要选择一个特定的目标网站
 						SpliderInfo sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_catch_state=0 order by rand() limit 1");
 						int flag = -1;
 						if (sinfo != null) {
+							//这里要根据当前得出的sinfo来判断是否继续抓取同一网站的信息
 							flag = SpliderService.fetchGoodOnLink(sinfo);
 						}else{
 							log.info("------------------->all good fetched, get good link again...");
@@ -468,7 +477,8 @@ public class YXEController extends Controller {
 					}
 					i++;
 				}
-			}, delay, cacheTimeInMunite);
+			}, delay, cacheTimeInMunite);*/
+			goodDetailFetchTimer.schedule(goodDetailFetchTask, delay, oneMunite/2);
 
 			setAttr("start_job_info", "定时任务启动成功");
 		} catch (SchedulerException e) {
@@ -528,14 +538,98 @@ public class YXEController extends Controller {
 	static long oneMunite = 60 * oneSecond;
 	static long delay = 10 * oneSecond;
 	static long cacheTimeInMunite = 2 * oneMunite;
-	static int i = 0;
+	static int i = 0;//详情抓取动作计数器
 	static Random random = new Random();
-	static Timer timer = null;
 	
 	public static String WEB_ROOT_PATH;
 	public static boolean IS_REFRESH;
 	
-	private static String currentTargetWeb;
-	public static Map<String, Integer> FETCH_COUNT_RECORD = new HashMap<String, Integer>(); 
+	static Timer goodDetailFetchTimer = null;
+	
+	private static TimerTask goodDetailFetchTask = new TimerTask(){
+		@Override
+		public void run() {
+			
+			SpliderInfo sinfo = null;
+			
+			long fetchTime = System.currentTimeMillis();
+			
+			
+			if(FETCH_COUNT_RECORD.isEmpty()){
+				//如果正在抓取的列表为空,则默认取目标网站的第一项来进行网络抓取操作
+				currentTargetWeb = Constants.TARGET_WEBSITE_LIST.get(0);
+				log.info("------------>first execute fetch, use the first var["+currentTargetWeb+"] in TARGET_WEBSITE_LIST for fetch function");
+			}else{
+				Long lastFetchTime = FETCH_COUNT_RECORD.get(currentTargetWeb);
+				log.info("------------>duration after the last time on the ["+currentTargetWeb+"]  ===>"+(fetchTime - lastFetchTime));
+				if(lastFetchTime != null && (fetchTime - lastFetchTime >= oneMunite)){
+					//do nothing at here
+					log.info("------------>["+currentTargetWeb+"] more than "+oneMunite+", keep currentTargetWeb value as ["+currentTargetWeb+"]");
+				}else if(fetchTime - lastFetchTime < oneMunite){
+					String tmpStr = new String(currentTargetWeb);
+					String[] ref = Constants.TARGET_WEBSITE_LIST.toArray(new String[Constants.TARGET_WEBSITE_LIST.size()]);
+					String[] comp = FETCHED_WEB_SITE.toArray(new String[FETCHED_WEB_SITE.size()]);
+					String[] result = ListUtil.substract(ref, comp);
+					List<String> tmp = new ArrayList<String>(Arrays.asList(result));
+					if(removeTargetWeb != null && removeTargetWeb.length() > 0){
+						log.info("------------>has not fetch target web count is :"+tmp.size());
+						if (tmp.contains(removeTargetWeb) && tmp.size() > 0) {
+							for(int i = 0; i < tmp.size(); i++){
+								log.info("------------>the target web unfetched's name is["+i+"]:"+tmp.get(i));
+							}
+							log.info("--------------->target web that need remove is :["+removeTargetWeb+"]");
+							tmp.remove(removeTargetWeb);
+						}
+						removeTargetWeb = null;
+					}
+					
+					log.info("------------>(1)has not fetch target web count is :"+tmp.size());
+					for(int i = 0; i < tmp.size(); i++){
+						log.info("------------>(1)the target web unfetched's name is["+i+"]:"+tmp.get(i));
+					}
+					
+					if (tmp.size() > 0) {
+						log.info("there still have unfetch web site, keep going to exchange [currentTargetWeb]");
+						currentTargetWeb = tmp.get(0);
+					}else{
+						log.info("there has no unfetch web site, clear FETCHED_WEB_SITE and make [currentTargetWeb]'s value = "+ Constants.TARGET_WEBSITE_LIST.get(0));
+						FETCHED_WEB_SITE.clear();
+						currentTargetWeb = Constants.TARGET_WEBSITE_LIST.get(0);
+					}
+					System.err.println("--------hhhh------->["+tmpStr+"]抓取间隔小于"+oneMunite+", currentTargetWeb更改为["+currentTargetWeb+"]");
+					log.info("["+tmpStr+"] fetch duration time is less than ["+oneMunite+"], change currentTargetWeb from ["+tmpStr+"] to ["+currentTargetWeb+"]");
+				}
+			}
+			
+			sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_catch_state=0 and h_src_free_str=?  and date(h_create_time)=? order by rand() limit 1", currentTargetWeb, DateUtils.currentDate());
+			
+			//记录抓取的地址
+			if(!FETCHED_WEB_SITE.contains(currentTargetWeb)){
+				log.info("there has no ["+currentTargetWeb+"] in fetch record, write ["+currentTargetWeb+"] into the FETCH_WEB_SITE");
+				FETCHED_WEB_SITE.add(currentTargetWeb);
+			}
+			
+			int flag = -1;
+			//如果以currentTargetWeb与当前日期为条件查询不到
+			if(sinfo == null){
+				log.info("["+currentTargetWeb+"] fetch over, remove ["+currentTargetWeb+"] from the FETCH_WEB_SITE and start fetch good list by ["+currentTargetWeb+"]");
+				if(FETCHED_WEB_SITE.contains(currentTargetWeb)){
+					FETCHED_WEB_SITE.remove(currentTargetWeb);
+					removeTargetWeb = currentTargetWeb;
+				}
+				SpliderService.fetchGoodLinkByRules(IS_REFRESH, WEB_ROOT_PATH, removeTargetWeb);
+			}else{
+				flag = SpliderService.fetchGoodOnLink(sinfo);
+				log.info("fetch good info ["+sinfo+"] on["+currentTargetWeb+"], save flag is "+flag);
+				//更新当前目标网站本次抓取的时间
+				FETCH_COUNT_RECORD.put(currentTargetWeb, fetchTime);
+			}
+		}
+	};
+	
+	public static String currentTargetWeb;
+	public static String removeTargetWeb;
+	public static Map<String, Long> FETCH_COUNT_RECORD = new HashMap<String, Long>();
+	public static List<String> FETCHED_WEB_SITE = new ArrayList<String>();
 
 }

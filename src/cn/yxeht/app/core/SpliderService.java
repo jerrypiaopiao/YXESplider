@@ -144,7 +144,9 @@ public class SpliderService {
 			// 将抓取的商品详情链接存入到数据库中
 			for (int j = 0; j < goodList.size(); j++) {
 				String link = goodList.get(j);
-				List<SpliderInfo> tmpSinfos = SpliderInfo.me.find("select * from h_splider_info where h_rule_name=? and h_good_link=?", rule.getRuleName(), link);
+//				List<SpliderInfo> tmpSinfos = SpliderInfo.me.find("select * from h_splider_info where h_rule_name=? and h_good_link=?", rule.getRuleName(), link);
+				//链接去重问题,很无奈的选择
+				List<SpliderInfo> tmpSinfos = SpliderInfo.me.find("select * from h_splider_info where h_good_link=?", link);
 				if (tmpSinfos == null || tmpSinfos.size() == 0) {
 					// 保存临时链接
 					SpliderInfo sinfo = new SpliderInfo();

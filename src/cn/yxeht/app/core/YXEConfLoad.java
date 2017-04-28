@@ -93,7 +93,7 @@ public class YXEConfLoad {
 				typeStr = merHostArr[0];
 				tpyeInt = merHostArr[1];
 			}
-			//如果指定了要抓取的目标网站
+			//如果指定了要抓取的目标网站,则跳过未抓取的网站.在55haitaoShort_4需要勒裤腰带
 			if(!TextUtil.isEmpty(targetWeb)){
 				if(!targetWeb.equals(target) && !"--".equals(targetWeb)){
 					continue;
