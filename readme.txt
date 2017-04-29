@@ -28,30 +28,6 @@
 ============================
 tomcat最低要求:tomcat6
 
---------------------------
-抓取业务关键表:
-h_goods 商品表
-h_goodstype 商品类型表
-h_merchant 商家表
-h_users 用户表
-h_usertags 用户标签表
---------------------------
-www.amazon.com
-www.amazon.cn
-www.amazon.co.jp
-www.amazon.de
-www.amazon.co.uk
-www.ebay.com
-www.6pm.com
-www.finishline.com
-www.ashford.com
-www.drugstore.com
-www.rei.com
-www.newblanceOUTLET.com
-www.amazon.com
-www.sierratradingpost.com
-
-
  ### set log levels ###
 log4j.rootLogger = debug , stdout , D , E
 
