@@ -3,10 +3,7 @@ package cn.yxeht.app.controller;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -14,17 +11,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.util.log.Log;
 import org.quartz.SchedulerException;
 
 import com.jfinal.core.Controller;
 
 import cn.yxeht.app.AppConfig;
 import cn.yxeht.app.bean.MerInfoBean;
-import cn.yxeht.app.bean.YXETypeMatch;
-import cn.yxeht.app.biz.rule.BaseRule;
 import cn.yxeht.app.biz.rule.DetailFetchRule;
-import cn.yxeht.app.biz.rule.GoodListRule;
 import cn.yxeht.app.constants.Constants;
 import cn.yxeht.app.core.SpliderService;
 import cn.yxeht.app.core.YXEConfLoad;
@@ -439,6 +432,15 @@ public class YXEController extends Controller {
 			FETCH_COUNT_RECORD.clear();
 			FETCHED_WEB_SITE.clear();
 			
+			if(goodDetailFetchTask != null){
+				try {
+					goodDetailFetchTask.cancel();
+				} catch (Exception e) {
+					log.info(e.getLocalizedMessage(), e.getCause());
+				}
+				goodDetailFetchTask = null;
+			}
+			
 			if(goodDetailFetchTimer != null){
 				try {
 					goodDetailFetchTimer.cancel();
@@ -450,34 +452,7 @@ public class YXEController extends Controller {
 				
 			}
 			goodDetailFetchTimer = new Timer();
-/*			goodDetailFetchTimer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					try {
-						if(random == null){
-							random = new Random();
-						}
-						int rand = random.nextInt(4);
-						rand = rand <= 0 ? 1 : rand;
-						cacheTimeInMunite = rand * oneMunite;
-						System.out.println("i:" + i + ", cacheTime:" + cacheTimeInMunite + ", date:" + new Date());
-						//需要选择一个特定的目标网站
-						SpliderInfo sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_catch_state=0 order by rand() limit 1");
-						int flag = -1;
-						if (sinfo != null) {
-							//这里要根据当前得出的sinfo来判断是否继续抓取同一网站的信息
-							flag = SpliderService.fetchGoodOnLink(sinfo);
-						}else{
-							log.info("------------------->all good fetched, get good link again...");
-							SpliderService.fetchGoodLinkByRules(IS_REFRESH, getRequest().getSession().getServletContext().getRealPath("/"));
-						}
-						 log.info("auto fetch good sinfo["+sinfo+"] in "+rand + "munite, save flag is "+flag);
-					} catch (Exception e) {
-						log.info("============>Fetch_GOOD_OCCUR_ERROR, go to next", e.getCause());
-					}
-					i++;
-				}
-			}, delay, cacheTimeInMunite);*/
+			goodDetailFetchTask = new SpliderTask();
 			goodDetailFetchTimer.schedule(goodDetailFetchTask, delay, oneMunite/2);
 
 			setAttr("start_job_info", "定时任务启动成功");
@@ -546,7 +521,10 @@ public class YXEController extends Controller {
 	
 	static Timer goodDetailFetchTimer = null;
 	
-	private static TimerTask goodDetailFetchTask = new TimerTask(){
+	private SpliderTask goodDetailFetchTask;
+	
+	public class SpliderTask extends TimerTask{
+		
 		@Override
 		public void run() {
 			
@@ -557,7 +535,20 @@ public class YXEController extends Controller {
 			
 			if(FETCH_COUNT_RECORD.isEmpty()){
 				//如果正在抓取的列表为空,则默认取目标网站的第一项来进行网络抓取操作
-				currentTargetWeb = Constants.TARGET_WEBSITE_LIST.get(0);
+				log.info("------------>first execute fetch, check the currentTargetWeb:["+currentTargetWeb+"]");
+				if(!TextUtil.isEmpty(currentTargetWeb)){
+					
+					for(String s : Constants.TARGET_WEBSITE_LIST){
+						if(!currentTargetWeb.equals(s)){
+							currentTargetWeb = s;
+							break;
+						}else{
+							continue;
+						}
+					}
+				}else{
+					currentTargetWeb = Constants.TARGET_WEBSITE_LIST.get(0);
+				}
 				log.info("------------>first execute fetch, use the first var["+currentTargetWeb+"] in TARGET_WEBSITE_LIST for fetch function");
 			}else{
 				Long lastFetchTime = FETCH_COUNT_RECORD.get(currentTargetWeb);
@@ -594,14 +585,24 @@ public class YXEController extends Controller {
 					}else{
 						log.info("there has no unfetch web site, clear FETCHED_WEB_SITE and make [currentTargetWeb]'s value = "+ Constants.TARGET_WEBSITE_LIST.get(0));
 						FETCHED_WEB_SITE.clear();
-						currentTargetWeb = Constants.TARGET_WEBSITE_LIST.get(0);
+//						currentTargetWeb = Constants.TARGET_WEBSITE_LIST.get(0);
+						for(String s : Constants.TARGET_WEBSITE_LIST){
+							if(!currentTargetWeb.equals(s)){
+								currentTargetWeb = s;
+								break;
+							}else{
+								continue;
+							}
+						}
 					}
 					System.err.println("--------hhhh------->["+tmpStr+"]抓取间隔小于"+oneMunite+", currentTargetWeb更改为["+currentTargetWeb+"]");
 					log.info("["+tmpStr+"] fetch duration time is less than ["+oneMunite+"], change currentTargetWeb from ["+tmpStr+"] to ["+currentTargetWeb+"]");
 				}
 			}
 			
-			sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_catch_state=0 and h_src_free_str=?  and date(h_create_time)=? order by rand() limit 1", currentTargetWeb, DateUtils.currentDate());
+			log.info("SELECT * FROM httest.h_splider_info where h_catch_state=0 and h_src_free_str='"+currentTargetWeb+"' and date(h_create_time)='"+DateUtils.currentDate()+"' order by rand() limit 1");
+			
+			sinfo = SpliderInfo.me.findFirst("SELECT * FROM httest.h_splider_info where h_catch_state=0 and h_src_free_str=? and date(h_create_time)=? order by id asc", currentTargetWeb, DateUtils.currentDate());
 			
 			//记录抓取的地址
 			if(!FETCHED_WEB_SITE.contains(currentTargetWeb)){
@@ -613,11 +614,25 @@ public class YXEController extends Controller {
 			//如果以currentTargetWeb与当前日期为条件查询不到
 			if(sinfo == null){
 				log.info("["+currentTargetWeb+"] fetch over, remove ["+currentTargetWeb+"] from the FETCH_WEB_SITE and start fetch good list by ["+currentTargetWeb+"]");
-				if(FETCHED_WEB_SITE.contains(currentTargetWeb)){
-					FETCHED_WEB_SITE.remove(currentTargetWeb);
-					removeTargetWeb = currentTargetWeb;
-				}
-				SpliderService.fetchGoodLinkByRules(IS_REFRESH, WEB_ROOT_PATH, removeTargetWeb);
+				Long lastFetchTime = FETCH_COUNT_RECORD.get(currentTargetWeb);
+//				if(lastFetchTime != null && fetchTime - lastFetchTime > 3*oneMunite){
+					if(FETCHED_WEB_SITE.contains(currentTargetWeb)){
+						FETCHED_WEB_SITE.remove(currentTargetWeb);
+						removeTargetWeb = currentTargetWeb;
+					}
+					SpliderService.fetchGoodLinkByRules(IS_REFRESH, WEB_ROOT_PATH, removeTargetWeb);
+					for(String s : Constants.TARGET_WEBSITE_LIST){
+						if(!currentTargetWeb.equals(s)){
+							currentTargetWeb = s;
+							break;
+						}else{
+							continue;
+						}
+					}
+//				}else{
+//					log.info("["+currentTargetWeb+"] fetch over, but time limit is not over, do not remove ["+currentTargetWeb+"] from the FETCH_WEB_SITE and start fetch good list by ["+currentTargetWeb+"]");
+//				}
+			    FETCH_COUNT_RECORD.put(currentTargetWeb, fetchTime);
 			}else{
 				flag = SpliderService.fetchGoodOnLink(sinfo);
 				log.info("fetch good info ["+sinfo+"] on["+currentTargetWeb+"], save flag is "+flag);
@@ -625,7 +640,8 @@ public class YXEController extends Controller {
 				FETCH_COUNT_RECORD.put(currentTargetWeb, fetchTime);
 			}
 		}
-	};
+		
+	}
 	
 	public static String currentTargetWeb;
 	public static String removeTargetWeb;

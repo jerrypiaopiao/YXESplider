@@ -146,7 +146,7 @@ public class SpliderService {
 				String link = goodList.get(j);
 //				List<SpliderInfo> tmpSinfos = SpliderInfo.me.find("select * from h_splider_info where h_rule_name=? and h_good_link=?", rule.getRuleName(), link);
 				//链接去重问题,很无奈的选择
-				List<SpliderInfo> tmpSinfos = SpliderInfo.me.find("select * from h_splider_info where h_good_link=?", link);
+				List<SpliderInfo> tmpSinfos = SpliderInfo.me.find("select * from h_splider_info where h_good_link=? and date(h_create_time)=?", link, DateUtils.currentDate());
 				if (tmpSinfos == null || tmpSinfos.size() == 0) {
 					// 保存临时链接
 					SpliderInfo sinfo = new SpliderInfo();

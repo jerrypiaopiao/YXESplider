@@ -357,21 +357,4 @@ public class DateUtils {
 		format.applyPattern(pattern);
 		return format.parse(datetime);
 	}
-	
-	public static void main(String args[]){
-		
-		if(args != null){
-			System.out.println("args.length:"+args.length);
-		}else{
-			System.out.println("args is null");
-		}
-		
-		for(String arg : args){
-			System.out.println(arg);
-		}
-		
-		System.out.println(currentDate());
-		
-	}
-	
 }
